@@ -1,6 +1,6 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
+#include "volk.h"
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -77,18 +77,7 @@ struct UniformBufferObject {
 
 class Application {
 public:
-    static void run() {
-        if (isRunning) {
-            throw std::runtime_error("application is already running!");
-        }
-
-        isRunning = true;
-
-        initWindow();
-        initVulkan();
-        mainLoop();
-        cleanup();
-    }
+    static void run();
 
 private:
     static inline GLFWwindow* window;

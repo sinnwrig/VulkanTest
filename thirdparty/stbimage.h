@@ -1,20 +1,16 @@
 /* stb_image - v2.28 - public domain image loader - http://nothings.org/stb
-                                  no warranty implied; use at your own risk
+   no warranty implied; use at your own risk
 
    Do this:
       #define STB_IMAGE_IMPLEMENTATION
    before you include this file in *one* C or C++ file to create the implementation.
 
    // i.e. it should look like this:
-   #include ...
-   #include ...
-   #include ...
    #define STB_IMAGE_IMPLEMENTATION
    #include "stb_image.h"
 
    You can #define STBI_ASSERT(x) before the #include to avoid using assert.h.
    And #define STBI_MALLOC, STBI_REALLOC, and STBI_FREE to avoid using malloc,realloc,free
-
 
    QUICK NOTES:
       Primarily of interest to game developers and other people who can
@@ -43,56 +39,7 @@
 
 
 LICENSE
-
   See end of file for license information.
-
- ============================    Contributors    =========================
-
- Image formats                          Extensions, features
-    Sean Barrett (jpeg, png, bmp)          Jetro Lauha (stbi_info)
-    Nicolas Schulz (hdr, psd)              Martin "SpartanJ" Golini (stbi_info)
-    Jonathan Dummer (tga)                  James "moose2000" Brown (iPhone PNG)
-    Jean-Marc Lienher (gif)                Ben "Disch" Wenger (io callbacks)
-    Tom Seddon (pic)                       Omar Cornut (1/2/4-bit PNG)
-    Thatcher Ulrich (psd)                  Nicolas Guillemot (vertical flip)
-    Ken Miller (pgm, ppm)                  Richard Mitton (16-bit PSD)
-    github:urraka (animated gif)           Junggon Kim (PNM comments)
-    Christopher Forseth (animated gif)     Daniel Gibson (16-bit TGA)
-                                           socks-the-fox (16-bit PNG)
-                                           Jeremy Sawicki (handle all ImageNet JPGs)
- Optimizations & bugfixes                  Mikhail Morozov (1-bit BMP)
-    Fabian "ryg" Giesen                    Anael Seghezzi (is-16-bit query)
-    Arseny Kapoulkine                      Simon Breuss (16-bit PNM)
-    John-Mark Allen
-    Carmelo J Fdez-Aguera
-
- Bug & warning fixes
-    Marc LeBlanc            David Woo          Guillaume George     Martins Mozeiko
-    Christpher Lloyd        Jerry Jansson      Joseph Thomson       Blazej Dariusz Roszkowski
-    Phil Jordan                                Dave Moore           Roy Eltham
-    Hayaki Saito            Nathan Reed        Won Chun
-    Luke Graham             Johan Duparc       Nick Verigakis       the Horde3D community
-    Thomas Ruf              Ronny Chevalier                         github:rlyeh
-    Janez Zemva             John Bartholomew   Michal Cichon        github:romigrou
-    Jonathan Blow           Ken Hamada         Tero Hanninen        github:svdijk
-    Eugene Golushkov        Laurent Gomila     Cort Stratton        github:snagar
-    Aruelien Pocheville     Sergio Gonzalez    Thibault Reuille     github:Zelex
-    Cass Everitt            Ryamond Barbiero                        github:grim210
-    Paul Du Bois            Engin Manap        Aldo Culquicondor    github:sammyhw
-    Philipp Wiesemann       Dale Weiler        Oriol Ferrer Mesia   github:phprus
-    Josh Tobin              Neil Bickford      Matthew Gregan       github:poppolopoppo
-    Julian Raschke          Gregory Mullen     Christian Floisand   github:darealshinji
-    Baldur Karlsson         Kevin Schmidt      JR Smith             github:Michaelangel007
-                            Brad Weinberger    Matvey Cherevko      github:mosra
-    Luca Sas                Alexander Veselov  Zack Middleton       [reserved]
-    Ryan C. Gordon          [reserved]                              [reserved]
-                     DO NOT ADD YOUR NAME HERE
-
-                     Jacko Dirks
-
-  To add your name to the credits, pick a random blank space in the middle and fill it.
-  80% of merge conflicts on stb PRs are due to people adding their name at the end
-  of the credits.
 */
 
 #ifndef STBI_INCLUDE_STB_IMAGE_H
@@ -189,29 +136,6 @@ LICENSE
 //
 // ===========================================================================
 //
-// Philosophy
-//
-// stb libraries are designed with the following priorities:
-//
-//    1. easy to use
-//    2. easy to maintain
-//    3. good performance
-//
-// Sometimes I let "good performance" creep up in priority over "easy to maintain",
-// and for best performance I may provide less-easy-to-use APIs that give higher
-// performance, in addition to the easy-to-use ones. Nevertheless, it's important
-// to keep in mind that from the standpoint of you, a client of this library,
-// all you care about is #1 and #3, and stb libraries DO NOT emphasize #3 above all.
-//
-// Some secondary priorities arise directly from the first two, some of which
-// provide more explicit reasons why performance can't be emphasized.
-//
-//    - Portable ("ease of use")
-//    - Small source code footprint ("easy to maintain")
-//    - No dependencies ("ease of use")
-//
-// ===========================================================================
-//
 // I/O callbacks
 //
 // I/O callbacks allow you to read from arbitrary sources, like packaged
@@ -221,27 +145,6 @@ LICENSE
 //
 // The three functions you must define are "read" (reads some bytes of data),
 // "skip" (skips some bytes of data), "eof" (reports if the stream is at the end).
-//
-// ===========================================================================
-//
-// SIMD support
-//
-// The JPEG decoder will try to automatically use SIMD kernels on x86 when
-// supported by the compiler. For ARM Neon support, you must explicitly
-// request it.
-//
-// (The old do-it-yourself SIMD API is no longer supported in the current
-// code.)
-//
-// On x86, SSE2 will automatically be used when available based on a run-time
-// test; if not, the generic C versions are used as a fall-back. On ARM targets,
-// the typical path is to have separate builds for NEON and non-NEON devices
-// (at least this is true for iOS and Android). Therefore, the NEON support is
-// toggled by a build flag: define STBI_NEON to get NEON loops.
-//
-// If for some reason you do not want to use any of SIMD code, or if
-// you have issues compiling it, you can disable it entirely by
-// defining STBI_NO_SIMD.
 //
 // ===========================================================================
 //
@@ -277,20 +180,6 @@ LICENSE
 // not), using:
 //
 //     stbi_is_hdr(char *filename);
-//
-// ===========================================================================
-//
-// iPhone PNG support:
-//
-// We optionally support converting iPhone-formatted PNGs (which store
-// premultiplied BGRA) back to RGB, even though they're internally encoded
-// differently. To enable this conversion, call
-// stbi_convert_iphone_png_to_rgb(1).
-//
-// Call stbi_set_unpremultiply_on_load(1) as well to force a divide per
-// pixel to remove any premultiplied alpha *only* if the image file explicitly
-// says there's premultiplied data (currently only happens in iPhone images,
-// and only if iPhone convert-to-rgb processing is on).
 //
 // ===========================================================================
 //

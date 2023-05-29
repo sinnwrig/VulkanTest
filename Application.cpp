@@ -1,4 +1,4 @@
-#define GLFW_INCLUDE_VULKAN
+#include "volk.h"
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -12,17 +12,13 @@
 #include <limits>
 #include <optional>
 #include <set>
-#include <glm/glm.hpp>
 #include "Application.h"
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <chrono>
-
-#define STB_IMAGE_IMPLEMENTATION
 #include "stbimage.h"
 
 
@@ -32,9 +28,8 @@ const uint32_t HEIGHT = 600;
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
-const bool enableValidationLayers = true;
+const bool enableValidationLayers = false;
 #endif
-
 
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -168,27 +163,45 @@ void Application::framebufferResizeCallback(GLFWwindow* window, int width, int h
 }
 
 
-void Application::initVulkan() {
-        createInstance();
-        setupDebugMessenger();
-        createSurface();
-        pickPhysicalDevice();
-        createLogicalDevice();
-        createSwapChain();
-        createImageViews();
-        createRenderPass();
-        createDescriptorSetLayout();
-        createGraphicsPipeline();
-        createFramebuffers();
-        createCommandPool();
-        createVertexBuffer();
-        createIndexBuffer();
-        createUniformBuffers();
-        createDescriptorPool();
-        createDescriptorSets();
-        createCommandBuffers();
-        createSyncObjects();
+void Application::run()  {
+    if (isRunning) {
+        throw std::runtime_error("application is already running!");
     }
+
+    isRunning = true;
+
+    if (volkInitialize() != VK_SUCCESS) {
+        throw std::runtime_error("could not initialize volk meta-loader!");
+    }
+
+    initWindow();
+    initVulkan();
+    mainLoop();
+    cleanup();
+}
+
+
+void Application::initVulkan() {
+    createInstance();
+    setupDebugMessenger();
+    createSurface();
+    pickPhysicalDevice();
+    createLogicalDevice();
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createDescriptorSetLayout();
+    createGraphicsPipeline();
+    createFramebuffers();
+    createCommandPool();
+    createVertexBuffer();
+    createIndexBuffer();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
+    createCommandBuffers();
+    createSyncObjects();
+}
 
     void Application::mainLoop() {
         while (isRunning) {
@@ -282,7 +295,7 @@ void Application::initVulkan() {
             throw std::runtime_error("validation layers requested, but not available!");
         }
 
-        VkApplicationInfo appInfo{};
+        VkApplicationInfo appInfo {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "Hello Triangle";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -290,7 +303,7 @@ void Application::initVulkan() {
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
 
-        VkInstanceCreateInfo createInfo{};
+        VkInstanceCreateInfo createInfo {};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
@@ -298,7 +311,7 @@ void Application::initVulkan() {
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
         if (enableValidationLayers) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -314,6 +327,9 @@ void Application::initVulkan() {
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             throw std::runtime_error("failed to create instance!");
         }
+
+        // Hehe hoohoo
+        volkLoadInstance(instance);
     }
 
     void Application::createSurface() {

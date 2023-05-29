@@ -3,7 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/thirdparty/**",
+                "${workspaceFolder}/build/external/include/**"
             ],
             
             "defines": [

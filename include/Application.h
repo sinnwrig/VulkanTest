@@ -224,5 +224,7 @@ private:
 
     static bool checkValidationLayerSupport();
 
+    static bool enableValidation();
+
     static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 };

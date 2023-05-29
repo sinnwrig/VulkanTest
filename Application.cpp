@@ -26,9 +26,9 @@ const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+const bool hasValidationLayers = false;
 #else
-const bool enableValidationLayers = false;
+const bool hasValidationLayers = true;
 #endif
 
 
@@ -122,6 +122,15 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 }
 
 
+bool Application::enableValidation() {
+    if (hasValidationLayers) {
+        return checkValidationLayerSupport();
+    }
+
+    return false;
+}
+
+
 void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -132,7 +141,7 @@ void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
 
 
 void Application::setupDebugMessenger() {
-    if (!enableValidationLayers) return;
+    if (!enableValidation()) return;
     
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
@@ -261,7 +270,7 @@ void Application::initVulkan() {
 
         vkDestroyDevice(device, nullptr);
 
-        if (enableValidationLayers) {
+        if (enableValidation()) {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
         }
 
@@ -291,8 +300,10 @@ void Application::initVulkan() {
     }
 
     void Application::createInstance() {
-        if (enableValidationLayers && !checkValidationLayerSupport()) {
-            throw std::runtime_error("validation layers requested, but not available!");
+        if (hasValidationLayers && !checkValidationLayerSupport()) {
+            std::cout << "Validation layers requested, but not available. Debugging without validation layers will be significantly more difficult" << std::endl;
+        } else if (hasValidationLayers && checkValidationLayerSupport()) {
+            std::cout << "Has required validation layers" << std::endl;
         }
 
         VkApplicationInfo appInfo {};
@@ -312,7 +323,7 @@ void Application::initVulkan() {
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
-        if (enableValidationLayers) {
+        if (enableValidation()) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -390,7 +401,7 @@ void Application::initVulkan() {
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-        if (enableValidationLayers) {
+        if (enableValidation()) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
         } else {
@@ -1168,7 +1179,7 @@ void Application::initVulkan() {
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        if (enableValidationLayers) {
+        if (enableValidation()) {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
 

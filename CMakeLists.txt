@@ -18,6 +18,13 @@ ExternalProject_Add(VULKAN
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
 )
 
+# TODO : Make this correctly download sometime
+#ExternalProject_Add(VULKAN_VALIDATION
+#    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
+#    GIT_TAG master
+#    CMAKE_ARGS -DBUILD_TESTS=Off -DBUILD_DEMOS=Off -DBUILD_WSI_MIR_SUPPORT=Off -DBUILD_WSI_WAYLAND_SUPPORT=Off -DBUILD_WSI_XLIB_SUPPORT=Off -DBUILD_WSI_XCB_SUPPORT=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#)
+
 ExternalProject_Add(GLFW
     GIT_REPOSITORY https://github.com/glfw/glfw
     GIT_TAG master
@@ -31,6 +38,7 @@ ExternalProject_Add(GLM
 )
 
 add_dependencies(${EXE_NAME} VULKAN)
+#add_dependencies(${EXE_NAME} VULKAN_VALIDATION)
 add_dependencies(${EXE_NAME} GLFW)
 add_dependencies(${EXE_NAME} GLM)
 

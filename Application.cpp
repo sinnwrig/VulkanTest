@@ -10,7 +10,6 @@
 #include <cstdlib>
 #include <cstdint>
 #include <limits>
-#include <optional>
 #include <set>
 #include "Application.h"
 
@@ -55,6 +54,92 @@ const std::vector<Vertex> vertices = {
 const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0
 };
+
+//kube
+/*vertices = {
+    // front face
+    0.0f, 0.0f, 0.0f,
+    length, 0.0f, 0.0f,
+    length, height, 0.0f,
+    0.0f, height, 0.0f,
+    // back face
+    0.0f, 0.0f, width,
+    length, 0.0f, width,
+    length, height, width,
+    0.0f, height, width,
+    // left face
+    0.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, width,
+    0.0f, height, width,
+    0.0f, height, 0.0f,
+    // right face
+    length, 0.0f, 0.0f,
+    length, 0.0f, width,
+    length, height, width,
+    length, height, 0.0f,
+    // top face
+    0.0f, height, 0.0f,
+    length, height, 0.0f,
+    length, height, width,
+    0.0f, height, width,
+    // bottom face
+    0.0f, 0.0f, 0.0f,
+    length, 0.0f, 0.0f,
+    length, 0.0f, width,
+    0.0f, 0.0f, width
+};
+uvs = {
+    // front face
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    // back face
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    // left face
+    0.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    // right face
+    1.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 1.0f,
+    // top face
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    // bottom face
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f
+};
+indices = {
+    // front face
+     0, 1, 2,
+     2, 3, 0,
+     // right face
+     1, 5, 6,
+     6, 2, 1,
+     // back face
+     7, 6, 5,
+     5, 4, 7,
+     // left face
+     4, 0, 3,
+     3, 7, 4,
+     // bottom face
+     4, 5, 1,
+     1, 0, 4,
+     // top face
+     3, 2, 6,
+     6, 7, 3
+};*/
 
 
 static std::vector<char> readFile(const std::string& filename) {

@@ -1,20 +1,20 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Always required :
-#     A CMake installation
-#     Git on the system
+#     A CMake installation on the system PATH
+#     Git, also on PATH
 
 # Compiling CMake on windows requires a MinGW installation on the PATH. 
-#     MinGW can be downloaded from here : [https://sourceforge.net/projects/mingw/]
+#     MinGW can be downloaded from here : [https://sourceforge.net/projects/mingw-w64/files/latest/download]
 #     When running the installer, make sure to add mingw32-base (for mingw32-make), and mingw-gcc-g++ (for compilation)
-#     To add MinGW to PATH, search for environment variables in settings, edit PATH, then add the MinGW/bin directory
+#     To add MinGW to PATH, search for environment variables in settings, edit PATH, then add the MinGW/mingw64/bin directory
 #     When running CMake, specify using MinGW files with '-G "MinGW Makefiles"' in the command line.
-#     Compiling the makefile will be 'mingw32-make' instead of just 'make'
 
 # Linux normally has GCC installed for compilation, but if not, you can use a package manager to get it.
 #     Make sure to have 'make' installed for makefile compilation. 
 #     CMake should handle the rest. Probably. Just run cmake -Bbuild
-#     To compile, run make -Cbuild
+
+# For all systems, compilation command should be >'cmake --build <build folder>'
 
 # I have no clue about Mac. Probably more finicky as you'll need MoltenVK for Vulkan, and I don't know about CMake on Apple either.
 
@@ -38,7 +38,7 @@ ExternalProject_Add(vulkan
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers
     GIT_TAG main
     PREFIX ${EXTERNAL_PACKAGE_DIR}/vulkan
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
+    CMAKE_ARGS -DBUILD_TESTS=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
 )
 
 
@@ -46,7 +46,7 @@ ExternalProject_Add(glfw
     GIT_REPOSITORY https://github.com/glfw/glfw
     GIT_TAG master
     PREFIX ${EXTERNAL_PACKAGE_DIR}/glfw
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
+    CMAKE_ARGS -DGLFW_BUILD_EXAMPLES=Off -DGLFW_BUILD_TESTS=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
 )
 
 

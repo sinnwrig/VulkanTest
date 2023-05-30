@@ -5,8 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/thirdparty/**",
-                "${workspaceFolder}/build/external/include/**"
-            ],
+                "${workspaceFolder}/build/external/install/include/**" 
+            ], 
             
             "defines": [
                 ""

@@ -180,7 +180,7 @@ void Application::run()  {
     isRunning = true;
 
     if (volkInitialize() != VK_SUCCESS) {
-        throw std::runtime_error("could not initialize volk meta-loader!");
+        throw std::runtime_error("could not initialize Vulkan loader!");
     }
 
     initWindow();

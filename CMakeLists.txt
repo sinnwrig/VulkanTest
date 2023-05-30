@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.9)
 
 # Always required :
 #     A CMake installation
@@ -25,67 +25,59 @@ file(GLOB SRC CONFIGURE_DEPENDS "*.cpp")
 
 add_executable(${EXE_NAME} ${SRC})
 
-include(FetchContent)
+include(ExternalProject)
 set(EXTERNAL ${CMAKE_BINARY_DIR}/external)
-set(EXTERNAL_PACKAGE_LOCATION ${EXTERNAL}/packages)
-set(EXTERNAL_INSTALL_LOCATION ${EXTERNAL}/install)
-set(IMPORTED_LIB_DIR ${EXTERNAL_INSTALL_LOCATION}/lib)
+set(EXTERNAL_PACKAGE_DIR ${EXTERNAL}/packages)
 
-set(INSTALL_COMMAND -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION})
+set(EXTERNAL_INSTALL_DIR ${EXTERNAL}/install)
+set(EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_DIR}/include)
+set(IMPORTED_LIB_DIR ${EXTERNAL_INSTALL_DIR}/lib)
 
-message("Downloading external libraries")
-set(FETCHCONTENT_QUIET FALSE)
-set(FETCHCONTENT_BASE_DIR ${EXTERNAL_PACKAGE_LOCATION}/vulkan)
-FetchContent_Declare(vulkan
+
+ExternalProject_Add(vulkan
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers
     GIT_TAG main
+    PREFIX ${EXTERNAL_PACKAGE_DIR}/vulkan
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
 )
-FetchContent_MakeAvailable(vulkan)
+
+
+ExternalProject_Add(glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw
+    GIT_TAG master
+    PREFIX ${EXTERNAL_PACKAGE_DIR}/glfw
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
+)
+
+
+ExternalProject_Add(glm
+    GIT_REPOSITORY https://github.com/g-truc/glm
+    GIT_TAG master
+    PREFIX ${EXTERNAL_PACKAGE_DIR}/glm
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
+)
+
+
+add_dependencies(${EXE_NAME} vulkan glfw glm)
+
 
 # TODO : Make this correctly download sometime
 #FetchContent_Declare(VULKAN_VALIDATION
 #    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
 #    GIT_TAG master
-#    CMAKE_ARGS -DBUILD_TESTS=Off -DBUILD_DEMOS=Off -DBUILD_WSI_MIR_SUPPORT=Off -DBUILD_WSI_WAYLAND_SUPPORT=Off -DBUILD_WSI_XLIB_SUPPORT=Off -DBUILD_WSI_XCB_SUPPORT=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#    CMAKE_ARGS -DBUILD_TESTS=Off -DBUILD_DEMOS=Off -DBUILD_WSI_MIR_SUPPORT=Off -DBUILD_WSI_WAYLAND_SUPPORT=Off -DBUILD_WSI_XLIB_SUPPORT=Off -DBUILD_WSI_XCB_SUPPORT=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
 #)
-
-set(FETCHCONTENT_BASE_DIR ${EXTERNAL_PACKAGE_LOCATION}/glfw)
-FetchContent_Declare(glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw
-    GIT_TAG master
-)
-FetchContent_MakeAvailable(glfw)
-
-set(FETCHCONTENT_BASE_DIR ${EXTERNAL_PACKAGE_LOCATION}/glm)
-FetchContent_Declare(glm
-    GIT_REPOSITORY https://github.com/g-truc/glm
-    GIT_TAG master
-)
-FetchContent_MakeAvailable(glm)
-
-message("Installing packages")
-#execute_process(
-#  COMMAND mingw32-make
-#  WORKING_DIRECTORY ${BOTAN_LIB_REPOS_DIR}
-#  COMMAND_ECHO      STDOUT
-#)
-
 
 # set include directory
-target_include_directories(${EXE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty ${EXTERNAL_INSTALL_LOCATION})
-
-if(WIN32)
-  set(suffix ".lib")
-elseif(APPLE)
-  set(suffix ".a")
-else()
-  set(suffix ".a")
-endif()
+target_include_directories(${EXE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty ${EXTERNAL_INCLUDE_DIR})
 
 # TODO : Find out how to identify the proper glfw libraries
-set(GLFW_LIB "${IMPORTED_LIB_DIR}/libglfw3${suffix}")
+set(GLFW_LIB "${IMPORTED_LIB_DIR}/libglfw3.a")
 target_link_libraries(${EXE_NAME} ${GLFW_LIB})
-
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
+
+install(TARGETS ${EXE_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(DIRECTORY resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(DIRECTORY shaders DESTINATION ${CMAKE_BINARY_DIR}/bin)

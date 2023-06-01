@@ -15,7 +15,17 @@
 #include <optional>
 #include <set>
 #include <array>
+
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
+
+#include <unordered_map>
+#include <chrono>
 
 
 struct QueueFamilyIndices {
@@ -36,8 +46,9 @@ struct SwapChainSupportDetails {
 
 
 struct Vertex {
-    glm::vec2 pos;
+    glm::vec3 pos;
     glm::vec3 color;
+    glm::vec2 texCoord;
 
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -50,11 +61,12 @@ struct Vertex {
     }
 
 
-    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
+    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions {};
+
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
         attributeDescriptions[1].binding = 0;
@@ -62,9 +74,29 @@ struct Vertex {
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
 
+        attributeDescriptions[2].binding = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
         return attributeDescriptions;
     }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
 };
+
+
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                   (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                   (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
 
 
 struct UniformBufferObject {
@@ -120,6 +152,8 @@ private:
     static inline uint32_t currentFrame = 0;
 
 
+    static inline std::vector<Vertex> vertices;
+    static inline std::vector<uint32_t> indices;
     static inline VkBuffer vertexBuffer;
     static inline VkDeviceMemory vertexBufferMemory;
     static inline VkBuffer indexBuffer;
@@ -133,14 +167,55 @@ private:
     static inline VkDescriptorPool descriptorPool;
     static inline std::vector<VkDescriptorSet> descriptorSets;
 
+    static inline VkImage textureImage;
+    static inline VkDeviceMemory textureImageMemory;
+    static inline VkImageView textureImageView;
+    static inline VkSampler textureSampler;
+
+    static inline VkImage depthImage;
+    static inline VkDeviceMemory depthImageMemory;
+    static inline VkImageView depthImageView;
+
+    static inline glm::mat4 cameraMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    static inline glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+    static inline std::unordered_map<int, bool> keyStates{};
+
+
+    static inline bool firstMouse = true;
+    static inline glm::vec2 mouseDelta;
 
 
     static inline bool framebufferResized = false;
 
     static inline bool isRunning = false;
 
+    static inline std::chrono::time_point startTime = std::chrono::high_resolution_clock::now();
+    static inline std::chrono::time_point lastTime = std::chrono::high_resolution_clock::now();
+    static inline float deltaTime;
+
+
+
+    static void mouseMove();
+
+    static void camMove();
+
+    static void rotateCamera(float amount, glm::vec3 axis);
+
+    static void moveCamera(glm::vec3 moveVector);
+
+
+    static VkResult initVolk();
+
+    static void loadVolk(VkInstance instance);
+
+    static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+    static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
 
     static void initWindow();
+
+    static void loadModel();
 
     static void initVulkan();
 
@@ -153,6 +228,12 @@ private:
     static void cleanupSwapChain();
 
     static void recreateSwapChain();
+
+    static void createDepthResources();
+
+    static VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+    static VkFormat findDepthFormat();
 
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
@@ -194,9 +275,21 @@ private:
 
     static void createCommandPool();
 
+    static void createTextureImage();
+
+    static void createTextureSampler();
+
+    static VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+    static void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
     static void createCommandBuffers();
 
     static void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    static VkCommandBuffer beginSingleTimeCommands();
+
+    static void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     static void createSyncObjects();
 

@@ -1,14 +1,17 @@
 cmake_minimum_required(VERSION 3.9)
 
+# This CMake project is not made for using inside of other projects, 
+
+
 # Always required :
 #     A CMake installation on the system PATH
 #     Git, also on PATH
 
 # Compiling CMake on windows requires a MinGW installation on the PATH. 
 #     MinGW can be downloaded from here : [https://sourceforge.net/projects/mingw-w64/files/latest/download]
-#     When running the installer, make sure to add mingw32-base (for mingw32-make), and mingw-gcc-g++ (for compilation)
-#     To add MinGW to PATH, search for environment variables in settings, edit PATH, then add the MinGW/mingw64/bin directory
-#     When running CMake, specify using MinGW files with '-G "MinGW Makefiles"' in the command line.
+#     Unpack the zip in any directory, but preferrably C:\MinGW
+#     To add MinGW to PATH, search for environment variables in settings, edit PATH, then add the MinGW/bin directory
+#     When running CMake, specify using MinGW files with '-G"MinGW Makefiles"' in the command line.
 
 # Linux normally has GCC installed for compilation, but if not, you can use a package manager to get it.
 #     Make sure to have 'make' installed for makefile compilation. 
@@ -65,7 +68,7 @@ add_dependencies(${EXE_NAME} vulkan glfw glm)
 #FetchContent_Declare(VULKAN_VALIDATION
 #    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
 #    GIT_TAG master
-#    CMAKE_ARGS -DBUILD_TESTS=Off -DBUILD_DEMOS=Off -DBUILD_WSI_MIR_SUPPORT=Off -DBUILD_WSI_WAYLAND_SUPPORT=Off -DBUILD_WSI_XLIB_SUPPORT=Off -DBUILD_WSI_XCB_SUPPORT=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_DIR}
+#    CMAKE_ARGS -DBUILD_TESTS=Off -DBUILD_DEMOS=Off -DBUILD_WSI_MIR_SUPPORT=Off -DBUILD_WSI_WAYLAND_SUPPORT=Off -DBUILD_WSI_XLIB_SUPPORT=Off -DBUILD_WSI_XCB_SUPPORT=Off -DCMAKE_BINARY_DIR=${EXTERNAL_INSTALL_DIR}
 #)
 
 # set include directory

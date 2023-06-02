@@ -167,6 +167,7 @@ private:
     static inline VkDescriptorPool descriptorPool;
     static inline std::vector<VkDescriptorSet> descriptorSets;
 
+    static inline uint32_t mipLevels;
     static inline VkImage textureImage;
     static inline VkDeviceMemory textureImageMemory;
     static inline VkImageView textureImageView;
@@ -209,7 +210,7 @@ private:
 
     static void loadVolk(VkInstance instance);
 
-    static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 
     static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) ;
 
@@ -277,11 +278,13 @@ private:
 
     static void createTextureImage();
 
+    static void generateMipmaps(VkImage image, VkFormat format, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+
     static void createTextureSampler();
 
-    static VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    static VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
-    static void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+    static void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
     static void createCommandBuffers();
 

@@ -1,3 +1,3 @@
 # VulkanTest
 
-Implementation of the [Vulkan Tutorial](https://vulkan-tutorial.com")
+Vulkan renderer I made following the [Vulkan Tutorial](https://vulkan-tutorial.com")
